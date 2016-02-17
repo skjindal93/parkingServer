@@ -11,14 +11,22 @@ def index(request):
 
 class SensorList(APIView):
 
+	def get_object(self, pi_id, pi_port):
+		try:
+			return sensors.objects.get(pi_id=pi_id,pi_port = pi_port)
+		except sensors.DoesNotExist:
+			raise Http404
+
 	def get(self, request, format=None):
 		queryset = sensors.objects.all()
 		serializer = SensorSerializer(queryset, many=True)
 		return Response(serializer.data)
 
 	def post(self, request, format=None):
-		serializer = SensorSerializer(data=request.data)
+		sensor = self.get_object(request.data["pi_id"],request.data["pi_port"])
+		print sensor
+		serializer = SensorSerializer(sensor,data=request.data)
 		if serializer.is_valid():
 			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
+			return Response(serializer.data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
