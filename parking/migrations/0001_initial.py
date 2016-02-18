@@ -11,15 +11,21 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='parking_spots',
+            name='raspberry',
+            fields=[
+                ('raspberry_id', models.AutoField(serialize=False, primary_key=True)),
+                ('mac', models.CharField(max_length=255)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='raspberryPhone',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=255)),
-                ('latitude', models.DecimalField(max_digits=15, decimal_places=10)),
-                ('longitude', models.DecimalField(max_digits=15, decimal_places=10)),
-                ('table_name', models.CharField(max_length=255)),
-                ('filled', models.IntegerField()),
-                ('capacity', models.IntegerField()),
+                ('phone_mac', models.CharField(max_length=255)),
+                ('phone_id', models.ForeignKey(to='parking.raspberry')),
             ],
             options={
             },
@@ -28,12 +34,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='sensors',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('sensor_id', models.AutoField(serialize=False, primary_key=True)),
                 ('latitude', models.DecimalField(max_digits=15, decimal_places=10)),
                 ('longitude', models.DecimalField(max_digits=15, decimal_places=10)),
-                ('pi_id', models.IntegerField()),
                 ('pi_port', models.IntegerField()),
                 ('occupied', models.BooleanField(default=False)),
+                ('pi_id', models.ForeignKey(to='parking.raspberry')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='spots',
+            fields=[
+                ('spot_id', models.AutoField(serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=255)),
+                ('latitude', models.DecimalField(max_digits=15, decimal_places=10)),
+                ('longitude', models.DecimalField(max_digits=15, decimal_places=10)),
+                ('table_name', models.CharField(max_length=255)),
+                ('filled', models.IntegerField()),
+                ('capacity', models.IntegerField()),
             ],
             options={
             },

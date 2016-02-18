@@ -11,8 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameModel(
-            old_name='parking_spots',
-            new_name='spots',
+        migrations.RenameField(
+            model_name='raspberryphone',
+            old_name='phone_id',
+            new_name='pi_id',
         ),
     ]

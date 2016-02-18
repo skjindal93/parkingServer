@@ -6,4 +6,7 @@ urlpatterns = [
 	url(r'^sensor/$', \
       views.SensorList.as_view(), \
       name='sensorList'),
+	url(r'^raspberryPhone/$', \
+      views.RaspberryPhone.as_view(), \
+      name='raspberryPhone'),
 ]
