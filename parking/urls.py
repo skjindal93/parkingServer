@@ -9,4 +9,7 @@ urlpatterns = [
 	url(r'^raspberryPhone/$', \
       views.RaspberryPhone.as_view(), \
       name='raspberryPhone'),
+	url(r'^qr/$', \
+      views.RaspberryQR.as_view(), \
+      name='qr'),
 ]
