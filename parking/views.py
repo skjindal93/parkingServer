@@ -3,6 +3,7 @@ from rest_framework import status
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from .serializers import *
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -10,7 +11,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 def index(request):
 	return HttpResponse("Hello, world. You're at the polls index.")
 
-class SensorList(APIView):
+class SensorListTemp(APIView):
 
 	def get_object(self, pi_id, pi_port):
 		try:
@@ -24,13 +25,28 @@ class SensorList(APIView):
 		return Response(serializer.data)
 
 	def post(self, request, format=None):
-		sensor = self.get_object(request.data["pi_id"],request.data["pi_port"])
+		serializer = SensorSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
+	def put(self, request, pi_id, pi_port, format=None):
+		sensor = self.get_object(pi_id, pi_port)
 		print sensor
 		serializer = SensorSerializer(sensor,data=request.data,partial=True)
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SensorList(generics.ListAPIView):
+	queryset = sensors.objects.all()
+	serializer_class = SensorSerializer
+
+class SensorCreate(generics.CreateAPIView):
+	queryset = sensors.objects.all()
+	serializer_class = SensorSerializer
 
 class RaspberryPhone(APIView):
 	

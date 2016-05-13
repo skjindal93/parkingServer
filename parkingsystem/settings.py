@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = (
 	'rest_framework',
 	'parking.apps.ParkingConfig',
+	'installation.apps.InstallationConfig',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,12 +45,19 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8000',
+)
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'parkingsystem.urls'
 
@@ -85,6 +94,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
+
+MEDIA_ROOT = BASE_DIR+'/media'
+MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 
