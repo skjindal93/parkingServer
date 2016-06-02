@@ -27,6 +27,6 @@ def newSensorId(request, mac):
 	sensor = sensors.objects.get(latitude__isnull = True, longitude__isnull = True, pi__in = pis)
 	return JsonResponse({'sensor': sensor.sensor_id})
 
-class LatitudeLongitude(generics.UpdateAPIView):
+class newSensor(generics.CreateAPIView):
 	queryset = sensors.objects.all()
-	serializer_class = LatitudeLongitudeSerializer
+	serializer_class = SensorSerializer

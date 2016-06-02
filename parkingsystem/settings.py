@@ -55,6 +55,8 @@ MIDDLEWARE_CLASSES = (
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
+	'locatr.cse.iitd.ernet.in:8000',
+	'locatr.cse.iitd.ac.in:8000',
 )
 
 CORS_ALLOW_CREDENTIALS = True

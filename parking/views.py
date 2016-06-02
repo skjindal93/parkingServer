@@ -1,88 +1,116 @@
 from .models import *
 from rest_framework import status
 from django.shortcuts import render
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from .serializers import *
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
+from django.db.models import F
+import math, subprocess
+from django.forms.models import model_to_dict
 
-def index(request):
-	return HttpResponse("Hello, world. You're at the polls index.")
+pi_ports = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
 
-class SensorListTemp(APIView):
+class SensorDetail(generics.ListAPIView):
+	serializer_class = SensorDetailSerializer
+	def get_queryset(self):
+		pi = self.kwargs['pi']
+		pi_port = self.kwargs['pi_port']
+		queryset = sensors.objects.filter(pi = pi, pi_port = pi_port)
+		return queryset
 
-	def get_object(self, pi_id, pi_port):
-		try:
-			return sensors.objects.get(pi_id=pi_id, pi_port = pi_port)
-		except sensors.DoesNotExist:
-			raise Http404
+def distance(lat1, lon1, lat2, lon2):
+	radius = 6371 # km
 
-	def get(self, request, format=None):
-		queryset = sensors.objects.all()
-		serializer = SensorSerializer(queryset, many=True)
-		return Response(serializer.data)
+	dlat = math.radians(lat2-lat1)
+	dlon = math.radians(lon2-lon1)
+	a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
+		* math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+	c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+	d = radius * c
 
-	def post(self, request, format=None):
-		serializer = SensorSerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	return d
+
+def orderedParkingArea(request):
+	latitude = request.GET.get('latitude')	
+	longitude = request.GET.get('longitude')
+	latitude = float(latitude)
+	longitude = float(longitude)
+	parking_areas = parkingAreas.objects.all()
+	parking_areas_list = []
+	for area in parking_areas:
+		parking_areas_list.append(model_to_dict(area))
+	print parking_areas_list
 	
-	def put(self, request, pi_id, pi_port, format=None):
-		sensor = self.get_object(pi_id, pi_port)
-		print sensor
-		serializer = SensorSerializer(sensor,data=request.data,partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class SensorList(generics.ListAPIView):
-	queryset = sensors.objects.all()
-	serializer_class = SensorSerializer
-
-class SensorCreate(generics.CreateAPIView):
-	queryset = sensors.objects.all()
-	serializer_class = SensorSerializer
-
-class RaspberryPhone(APIView):
+	for area in parking_areas_list:
+		area_latitude  = float(area['latitude'])
+		area_longitude = float(area['longitude'])
+		area['distance'] = distance(latitude, longitude, area_latitude, area_longitude)
 	
-	def get_object(self, pi_id):
-		try:
-			return raspberryPhone.objects.get(pi_id=pi_id)
-		except raspberryPhone.DoesNotExist:
-			return None
-	
-	def post(self, request, format=None):
-		queryset = self.get_object(request.data["pi_id"])
-		print request.data
-		print queryset
-		serializer = None
-		if (queryset is None):
-			serializer = RaspberryPhoneSerializer(data=request.data)
+	ordered = sorted(parking_areas_list, key=lambda k: k['distance'])
+	print ordered
+	return JsonResponse({"areas": ordered})
+		
+def sensorPortList(request):
+	ids = sensors.objects.filter(pi = request.GET.get('pi')).values('pi_port')
+	used = []
+	for id in ids:
+		used.append(id['pi_port'])
+
+	ports = []
+	for id in pi_ports:
+		if id in used:
+			j = {'pi_port': id, 'used': True}
+			ports.append(j)
 		else:
-			serializer = RaspberryPhoneSerializer(queryset, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			j = {'pi_port': id, 'used': False}
+			ports.append(j)
+	return JsonResponse({"ports":ports})
 
-class RaspberryQR(APIView):
-	renderer_classes = [TemplateHTMLRenderer]
-	template_name = 'qr.html'
+class ParkCar(generics.UpdateAPIView):
+	serializer_class = ParkCarSerializer
+	queryset = sensors.objects.all()
+	
+	def get_object(self):
+		return sensors.objects.get(pi = self.kwargs['pi'], pi_port = self.kwargs['pi_port'])
 
-	def get(self, request):
-		queryset = raspberry.objects.all()
-		serializer = RaspberrySerializer(queryset, many=True)
-		return Response({'serializer': serializer})
+	def perform_update(self, serializer):
+		sensor = self.get_object()
+		pi = sensor.pi
+		previous_occupied = sensor.occupied
+		parking_area = parkingRaspberryMapping.objects.get(pi=pi).area.id
+		occupied = self.request.data['occupied']
+		occupied = bool(int(occupied))
+		print previous_occupied, occupied
+		if (previous_occupied != occupied):
+			if (occupied):
+				parkingAreas.objects.filter(id=parking_area).update(filled = F("filled") + 1)
+			else:
+				parkingAreas.objects.filter(id=parking_area).update(filled = F("filled") - 1)
+		serializer.save()
 
-	def post(self, request, format=None):
-		serializer = RaspberrySerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ParkingArea(generics.ListAPIView):
+	serializer_class = ParkingAreaSerializer
+	
+	def get_queryset(self):
+		area = self.request.GET.get('area')
+		return parkingRaspberryMapping.objects.filter(area = area)
+
+class ParkingAreaList(generics.ListAPIView):
+	serializer_class = ParkingAreaDetailSerializer
+	queryset = parkingAreas.objects.all()
+
+def checkStatus(request):
+	import pingparser
+	pi = request.GET.get('pi')
+	ip = raspberry.objects.get(raspberry_id=pi).ip
+	if ip is None:
+		return HttpResponse(0)
+	ping = subprocess.Popen(["ping", "-c", "1", ip], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	
+	out, error = ping.communicate()
+	status = pingparser.parse(out)['received']
+	return HttpResponse(status)
 	

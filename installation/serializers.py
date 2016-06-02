@@ -11,3 +11,8 @@ class LatitudeLongitudeSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
 		fields = ('latitude', 'longitude',)
+
+class SensorSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = sensors
+		fields = ('latitude', 'longitude', 'pi_port', 'pi',)
