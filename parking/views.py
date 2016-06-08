@@ -11,16 +11,6 @@ from django.db.models import F
 import math, subprocess
 from django.forms.models import model_to_dict
 
-pi_ports = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-
-class SensorDetail(generics.ListAPIView):
-	serializer_class = SensorDetailSerializer
-	def get_queryset(self):
-		pi = self.kwargs['pi']
-		pi_port = self.kwargs['pi_port']
-		queryset = sensors.objects.filter(pi = pi, pi_port = pi_port)
-		return queryset
-
 def distance(lat1, lon1, lat2, lon2):
 	radius = 6371 # km
 
@@ -53,22 +43,6 @@ def orderedParkingArea(request):
 	print ordered
 	return JsonResponse({"areas": ordered})
 		
-def sensorPortList(request):
-	ids = sensors.objects.filter(pi = request.GET.get('pi')).values('pi_port')
-	used = []
-	for id in ids:
-		used.append(id['pi_port'])
-
-	ports = []
-	for id in pi_ports:
-		if id in used:
-			j = {'pi_port': id, 'used': True}
-			ports.append(j)
-		else:
-			j = {'pi_port': id, 'used': False}
-			ports.append(j)
-	return JsonResponse({"ports":ports})
-
 class ParkCar(generics.UpdateAPIView):
 	serializer_class = ParkCarSerializer
 	queryset = sensors.objects.all()
@@ -98,10 +72,6 @@ class ParkingArea(generics.ListAPIView):
 		area = self.request.GET.get('area')
 		return parkingRaspberryMapping.objects.filter(area = area)
 
-class ParkingAreaList(generics.ListAPIView):
-	serializer_class = ParkingAreaDetailSerializer
-	queryset = parkingAreas.objects.all()
-
 def checkStatus(request):
 	import pingparser
 	pi = request.GET.get('pi')
@@ -113,4 +83,7 @@ def checkStatus(request):
 	out, error = ping.communicate()
 	status = pingparser.parse(out)['received']
 	return HttpResponse(status)
-	
+
+class RaspberryDelete(generics.DestroyAPIView):
+	serializer_class = RaspberryDeleteSerializer
+	queryset = raspberry.objects.all()

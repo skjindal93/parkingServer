@@ -11,15 +11,15 @@ class RaspberrySerializer(serializers.ModelSerializer):
 		model = raspberry
 		fields = ('raspberry_id', 'mac',)
 
+class RaspberryDeleteSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = raspberry
+		fields = ('raspberry_id',)
+
 class SensorPortSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
 		fields = ('pi_port', 'occupied',)
-
-class SensorDetailSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = sensors
-		fields = ('pi', 'pi_port', 'latitude', 'longitude', 'occupied',)
 
 class ParkCarSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -38,7 +38,3 @@ class ParkingAreaSerializer(serializers.ModelSerializer):
 		model = parkingRaspberryMapping
 		fields = ('area','pi',)
 
-class ParkingAreaDetailSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = parkingAreas
-		fields = ('id', 'name','latitude','longitude','capacity','filled',)
