@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
 from django.db.models import F
-import math, subprocess
+import math, subprocess, datetime
 from django.forms.models import model_to_dict
 
 def distance(lat1, lon1, lat2, lon2):
@@ -43,8 +43,8 @@ def orderedParkingArea(request):
 	print ordered
 	return JsonResponse({"areas": ordered})
 		
-class ParkCar(generics.UpdateAPIView):
-	serializer_class = ParkCarSerializer
+class ParkCarFromSensor(generics.UpdateAPIView):
+	serializer_class = ParkCarFromSensorSerializer
 	queryset = sensors.objects.all()
 	
 	def get_object(self):
@@ -64,6 +64,33 @@ class ParkCar(generics.UpdateAPIView):
 			else:
 				parkingAreas.objects.filter(id=parking_area).update(filled = F("filled") - 1)
 		serializer.save()
+
+		if previous_occupied == 1 and occupied == 0:
+			now = datetime.datetime.now()
+			parkingHistory.objects.filter(sensor=sensor,parked_go__isnull=True).update(parked_go=now)
+
+class ParkCar(generics.GenericAPIView):
+		
+	def post(self, request, format=None):
+		user = int(request.data['user'])
+		sensor_qr = request.data['qr']
+		sensor = sensors.objects.get(qr=sensor_qr)
+		occupied = sensor.occupied
+		if occupied == 0:
+			return Response("Parking at an empty location?", status = status.HTTP_400_BAD_REQUEST)
+		if not (parkingHistory.objects.filter(user=user, parked_go__isnull=True).exists() or parkingHistory.objects.filter(sensor=sensor, parked_go__isnull=True).exists()):
+			obj = parkingHistory.objects.create(user=user, sensor=sensor)
+			data = model_to_dict(obj)
+			return Response(data, status=status.HTTP_201_CREATED)
+		else:
+			return Response("(You have already parked the car) or (You are scanning the wrong sensor. Someone else's car is already parked there.)", status=status.HTTP_400_BAD_REQUEST)
+
+class NavigateUser(generics.RetrieveAPIView):
+	serializer_class = SensorSerializer
+	queryset = sensors.objects.all()
+
+	def get_object(self):
+		return sensors.objects.get(qr = self.kwargs['qr'])
 
 class ParkingArea(generics.ListAPIView):
 	serializer_class = ParkingAreaSerializer
@@ -87,3 +114,7 @@ def checkStatus(request):
 class RaspberryDelete(generics.DestroyAPIView):
 	serializer_class = RaspberryDeleteSerializer
 	queryset = raspberry.objects.all()
+
+class SensorDelete(generics.DestroyAPIView):
+	serializer_class = SensorDeleteSerializer
+	queryset = sensors.objects.all()

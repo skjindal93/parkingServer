@@ -9,7 +9,7 @@ class RaspberryPhoneSerializer(serializers.ModelSerializer):
 class SensorDetailSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
-		fields = ('pi', 'pi_port', 'latitude', 'longitude', 'occupied',)
+		fields = ('pi', 'pi_port', 'latitude', 'longitude', 'occupied', 'qr',)
 
 class ParkingAreaDetailSerializer(serializers.ModelSerializer):
 	class Meta:

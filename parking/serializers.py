@@ -4,7 +4,7 @@ from rest_framework import serializers
 class SensorSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
-		fields = ('sensor_id','latitude', 'longitude', 'pi', 'pi_port', 'occupied', 'created', 'modified',)
+		fields = ('sensor_id','latitude', 'longitude', 'pi', 'pi_port', 'occupied', 'created', 'modified','qr',)
 
 class RaspberrySerializer(serializers.ModelSerializer):
 	class Meta:
@@ -16,12 +16,17 @@ class RaspberryDeleteSerializer(serializers.ModelSerializer):
 		model = raspberry
 		fields = ('raspberry_id',)
 
+class SensorDeleteSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = sensors
+		fields = ('sensor_id',)
+
 class SensorPortSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
 		fields = ('pi_port', 'occupied',)
 
-class ParkCarSerializer(serializers.ModelSerializer):
+class ParkCarFromSensorSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = sensors
 		fields = ('pi','pi_port','occupied',)

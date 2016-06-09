@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from parking.models import *
 from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 import pyqrcode, os, math
 from django.conf import settings
-from rest_framework import generics
+from rest_framework import generics, permissions
 from .serializers import *
+from django.forms.models import model_to_dict
 
 ########################################
 #################Fxns###################
@@ -74,6 +75,7 @@ class ParkingAreaRegister(generics.CreateAPIView):
 
 class ParkingAreasInRegion(generics.ListAPIView):
 	serializer_class = ParkingAreaRegionSerializer
+	permission_classes = [permissions.IsAuthenticated]
 
 	def get_queryset(self):
 		return areaRegionMapping.objects.filter(region=self.kwargs['region'])
@@ -104,11 +106,16 @@ class RaspberryPhoneMap(generics.CreateAPIView):
 		phone_mac = self.request.data['phone_mac']
 		pi_id = int(self.request.data['pi'])
 		pi = raspberry.objects.get(raspberry_id=pi_id)
+		area_id = self.request.data['area']
+		area = parkingAreas.objects.get(id=area_id)
 		if not raspberryPhone.objects.filter(pi=pi, phone_mac=phone_mac).exists():
-			serializer.save()
-			area_id = self.request.data['area']
-			area = parkingAreas.objects.get(id=area_id)
 			parkingRaspberryMapping.objects.create(area=area, pi=pi)
+			serializer.save()
+		else:
+			actual_area	= parkingRaspberryMapping.objects.get(pi=pi).area
+			if (actual_area != area):
+				raise Http404
+			
 
 ########################################
 #################Sensor#################
