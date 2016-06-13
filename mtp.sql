@@ -16,6 +16,38 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `parking_parkinghistory`
+--
+
+DROP TABLE IF EXISTS `parking_parkinghistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `parking_parkinghistory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parked_at` datetime NOT NULL,
+  `parked_go` datetime DEFAULT NULL,
+  `amount` double DEFAULT NULL,
+  `sensor_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parking_parkinghistory_d96d866a` (`sensor_id`),
+  KEY `parking_parkinghistory_e8701ad4` (`user_id`),
+  CONSTRAINT `parking_parkinghistory_user_id_efaea99b_fk_users_info_id` FOREIGN KEY (`user_id`) REFERENCES `users_info` (`id`),
+  CONSTRAINT `parking_parkingh_sensor_id_7792c063_fk_parking_sensors_sensor_id` FOREIGN KEY (`sensor_id`) REFERENCES `parking_sensors` (`sensor_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `parking_parkinghistory`
+--
+
+LOCK TABLES `parking_parkinghistory` WRITE;
+/*!40000 ALTER TABLE `parking_parkinghistory` DISABLE KEYS */;
+INSERT INTO `parking_parkinghistory` VALUES (1,'0000-00-00 00:00:00',NULL,NULL,2,1);
+/*!40000 ALTER TABLE `parking_parkinghistory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `parking_arearegionmapping`
 --
 
@@ -32,7 +64,7 @@ CREATE TABLE `parking_arearegionmapping` (
   KEY `parking_arearegionmapping_0f442f96` (`region_id`),
   CONSTRAINT `parking__region_id_19f866b04896e001_fk_parking_parkingregions_id` FOREIGN KEY (`region_id`) REFERENCES `parking_parkingregions` (`id`),
   CONSTRAINT `parking_area_area_id_48444c6bba44f21e_fk_parking_parkingareas_id` FOREIGN KEY (`area_id`) REFERENCES `parking_parkingareas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +73,7 @@ CREATE TABLE `parking_arearegionmapping` (
 
 LOCK TABLES `parking_arearegionmapping` WRITE;
 /*!40000 ALTER TABLE `parking_arearegionmapping` DISABLE KEYS */;
-INSERT INTO `parking_arearegionmapping` VALUES (1,1,1),(2,2,1),(3,7,1),(4,8,1),(5,9,1);
+INSERT INTO `parking_arearegionmapping` VALUES (1,1,1),(2,2,1),(3,7,1),(4,8,1),(5,9,1),(6,10,1),(7,11,45),(8,12,45),(9,13,47);
 /*!40000 ALTER TABLE `parking_arearegionmapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,10 +89,10 @@ CREATE TABLE `parking_parkingareas` (
   `name` longtext NOT NULL,
   `capacity` int(11) NOT NULL,
   `filled` int(11) NOT NULL,
-  `latitude` decimal(15,10) NOT NULL,
-  `longitude` decimal(15,10) NOT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +101,7 @@ CREATE TABLE `parking_parkingareas` (
 
 LOCK TABLES `parking_parkingareas` WRITE;
 /*!40000 ALTER TABLE `parking_parkingareas` DISABLE KEYS */;
-INSERT INTO `parking_parkingareas` VALUES (1,'Vindhyachal Hostel',0,2,50.0000000000,50.0000000000),(2,'Shivalik Hostel',0,0,50.0000000000,50.0000000000),(3,'Bla',0,0,25.0000000000,25.0000000000),(4,'Bla',0,0,25.0000000000,25.0000000000),(5,'Bla',0,0,25.0000000000,25.0000000000),(6,'Bla',0,0,25.0000000000,25.0000000000),(7,'Bla',0,0,25.0000000000,25.0000000000),(8,'Bla',0,0,25.0000000000,25.0000000000),(9,'Bla',0,0,25.0000000000,25.0000000000);
+INSERT INTO `parking_parkingareas` VALUES (1,'Vindhyachal Hostel',0,1,1,50),(2,'Shivalik Hostel',0,0,1,50),(3,'Bla',0,0,1,25),(4,'Bla',0,0,1,25),(5,'Bla',0,0,1,25),(6,'Bla',0,0,1,25),(7,'Bla',0,0,1,25),(8,'Bla',0,0,1,25),(9,'Bla',0,0,1,25),(10,'Bharti Building',0,0,1,77.1906569),(11,'ChotuArea',0,0,1,50),(12,'Bb ki vines',0,0,1,77.19068),(13,'Babalee',0,0,28.5526311,77.194189);
 /*!40000 ALTER TABLE `parking_parkingareas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,11 +118,12 @@ CREATE TABLE `parking_parkingraspberrymapping` (
   `pi_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parking_parkingraspberrymapping_area_id_6ff4b6a5a31388d8_uniq` (`area_id`,`pi_id`),
+  UNIQUE KEY `parking_parkingraspberrymapping_pi_id_644b53abcd1b924b_uniq` (`pi_id`),
   KEY `parking_parkingraspberrymapping_d266de13` (`area_id`),
   KEY `parking_parkingraspberrymapping_e34c8b0e` (`pi_id`),
-  CONSTRAINT `parking_park_area_id_3f1ba4ab04e45c37_fk_parking_parkingareas_id` FOREIGN KEY (`area_id`) REFERENCES `parking_parkingareas` (`id`),
-  CONSTRAINT `parking_pi_id_644b53abcd1b924b_fk_parking_raspberry_raspberry_id` FOREIGN KEY (`pi_id`) REFERENCES `parking_raspberry` (`raspberry_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+  CONSTRAINT `parking_pi_id_644b53abcd1b924b_fk_parking_raspberry_raspberry_id` FOREIGN KEY (`pi_id`) REFERENCES `parking_raspberry` (`raspberry_id`),
+  CONSTRAINT `parking_park_area_id_3f1ba4ab04e45c37_fk_parking_parkingareas_id` FOREIGN KEY (`area_id`) REFERENCES `parking_parkingareas` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +132,7 @@ CREATE TABLE `parking_parkingraspberrymapping` (
 
 LOCK TABLES `parking_parkingraspberrymapping` WRITE;
 /*!40000 ALTER TABLE `parking_parkingraspberrymapping` DISABLE KEYS */;
-INSERT INTO `parking_parkingraspberrymapping` VALUES (1,1,1),(5,1,4),(4,2,1);
+INSERT INTO `parking_parkingraspberrymapping` VALUES (22,1,1);
 /*!40000 ALTER TABLE `parking_parkingraspberrymapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -112,12 +145,12 @@ DROP TABLE IF EXISTS `parking_parkingregions`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `parking_parkingregions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255),
-  `latitude` decimal(15,10) NOT NULL,
-  `longitude` decimal(15,10) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parking_parkingregions_name_6d4ba233ecb9c7f6_uniq` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,7 +159,7 @@ CREATE TABLE `parking_parkingregions` (
 
 LOCK TABLES `parking_parkingregions` WRITE;
 /*!40000 ALTER TABLE `parking_parkingregions` DISABLE KEYS */;
-INSERT INTO `parking_parkingregions` VALUES (1,'Indian Institute of Technology, Delhi',50.0000000000,50.0000000000),(2,'Connaught Place',25.0000000000,25.0000000000);
+INSERT INTO `parking_parkingregions` VALUES (1,'Indian Institute of Technology, Delhi',50,50),(2,'Connaught Place',25,25),(43,'Chotu',50,50),(44,'Hehe',28.544811,77.1921033),(45,'A guy',28.5452363,77.1933465),(46,'Hey baby',28.5417202,77.1877004),(47,'Ambience mall',28.5057298,77.0962621);
 /*!40000 ALTER TABLE `parking_parkingregions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -142,7 +175,7 @@ CREATE TABLE `parking_raspberry` (
   `mac` varchar(255) DEFAULT NULL,
   `ip` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`raspberry_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +184,7 @@ CREATE TABLE `parking_raspberry` (
 
 LOCK TABLES `parking_raspberry` WRITE;
 /*!40000 ALTER TABLE `parking_raspberry` DISABLE KEYS */;
-INSERT INTO `parking_raspberry` VALUES (1,'','10.192.49.24'),(4,'',NULL);
+INSERT INTO `parking_raspberry` VALUES (1,'','10.192.49.24'),(5,'',NULL);
 /*!40000 ALTER TABLE `parking_raspberry` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,7 +202,7 @@ CREATE TABLE `parking_raspberryphone` (
   PRIMARY KEY (`id`),
   KEY `parking_raspberryphone_e34c8b0e` (`pi_id`),
   CONSTRAINT `parking_pi_id_25d234afc9221afe_fk_parking_raspberry_raspberry_id` FOREIGN KEY (`pi_id`) REFERENCES `parking_raspberry` (`raspberry_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +211,7 @@ CREATE TABLE `parking_raspberryphone` (
 
 LOCK TABLES `parking_raspberryphone` WRITE;
 /*!40000 ALTER TABLE `parking_raspberryphone` DISABLE KEYS */;
-INSERT INTO `parking_raspberryphone` VALUES (1,'EC:1F:72:2D:6D:71',1),(2,'EC:1F:72:2D:6D:71',1),(3,'EC:1F:72:2D:6D:71',1),(4,'EC:1F:72:2D:6D:71',1),(5,'EC:1F:72:2D:6D:71',1),(6,'EC:1F:72:2D:6D:71',1),(7,'EC:1F:72:2D:6D:71',1),(8,'EC:1F:72:2D:6D:71',1),(9,'EC:1F:72:2D:6D:71',1),(10,'EC:1F:72:2D:6D:71',1),(11,'EC:1F:72:2D:6D:71',1),(12,'EC:1F:72:2D:6D:71',1),(13,'EC:1F:72:2D:6D:71',1),(14,'EC:1F:72:2D:6D:71',1),(15,'EC:1F:72:2D:6D:71',1),(16,'EC:1F:72:2D:6D:71',1),(17,'EC:1F:72:2D:6D:71',1),(18,'EC:1F:72:2D:6D:71',1),(19,'EC:1F:72:2D:6D:71',1),(20,'EC:1F:72:2D:6D:71',1),(21,'EC:1F:72:2D:6D:71',1),(22,'EC:1F:72:2D:6D:71',1),(23,'EC:1F:72:2D:6D:71',1),(24,'EC:1F:72:2D:6D:71',1),(25,'EC:1F:72:2D:6D:71',1),(26,'EC:1F:72:2D:6D:71',1),(27,'EC:1F:72:2D:6D:71',1),(28,'EC:1F:72:2D:6D:71',1),(29,'EC:1F:72:2D:6D:71',1),(30,'EC:1F:72:2D:6D:71',1),(31,'EC:1F:72:2D:6D:71',1),(32,'EC:1F:72:2D:6D:71',1),(33,'EC:1F:72:2D:6D:71',1),(34,'EC:1F:72:2D:6D:71',1),(35,'EC:1F:72:2D:6D:71',1),(36,'EC:1F:72:2D:6D:71',1),(37,'EC:1F:72:2D:6D:71',1),(38,'EC:1F:72:2D:6D:71',1),(39,'EC:1F:72:2D:6D:71',1),(40,'EC:1F:72:2D:6D:71',1),(41,'EC:1F:72:2D:6D:71',1),(42,'EC:1F:72:2D:6D:71',1),(43,'EC:1F:72:2D:6D:71',1),(44,'EC:1F:72:2D:6D:71',1),(45,'EC:1F:72:2D:6D:71',1),(46,'EC:1F:72:2D:6D:71',1),(47,'EC:1F:72:2D:6D:71',1),(48,'EC:1F:72:2D:6D:71',1),(49,'EC:1F:72:2D:6D:71',1),(50,'EC:1F:72:2D:6D:71',1),(51,'EC:1F:72:2D:6D:71',1),(52,'EC:1F:72:2D:6D:71',1),(53,'EC:1F:72:2D:6D:71',1),(54,'EC:1F:72:2D:6D:71',1),(55,'EC:1F:72:2D:6D:71',1),(56,'EC:1F:72:2D:6D:71',1),(57,'EC:1F:72:2D:6D:71',1),(58,'EC:1F:72:2D:6D:71',1),(59,'EC:1F:72:2D:6D:71',1),(62,'EC:1F:72:2D:6D:71',1),(63,'bla:bla',4);
+INSERT INTO `parking_raspberryphone` VALUES (66,'EC:1F:72:2D:6D:71',1);
 /*!40000 ALTER TABLE `parking_raspberryphone` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -191,18 +224,20 @@ DROP TABLE IF EXISTS `parking_sensors`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `parking_sensors` (
   `sensor_id` int(11) NOT NULL AUTO_INCREMENT,
-  `latitude` decimal(15,10) NOT NULL,
-  `longitude` decimal(15,10) NOT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
   `pi_port` int(11) NOT NULL,
   `occupied` tinyint(1) NOT NULL,
   `pi_id` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
+  `qr` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`sensor_id`),
   UNIQUE KEY `parking_sensors_pi_id_25821f7cf192421_uniq` (`pi_id`,`pi_port`),
+  UNIQUE KEY `parking_sensors_qr_58b6a67ab9a1a719_uniq` (`qr`),
   KEY `parking_sensors_e34c8b0e` (`pi_id`),
   CONSTRAINT `parking_pi_id_79f0bbbcc491bada_fk_parking_raspberry_raspberry_id` FOREIGN KEY (`pi_id`) REFERENCES `parking_raspberry` (`raspberry_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -211,8 +246,41 @@ CREATE TABLE `parking_sensors` (
 
 LOCK TABLES `parking_sensors` WRITE;
 /*!40000 ALTER TABLE `parking_sensors` DISABLE KEYS */;
-INSERT INTO `parking_sensors` VALUES (1,50.0000000000,50.0000000000,2,0,1,'2016-05-30 00:00:00','2016-05-30 12:19:04'),(2,60.0000000000,60.0000000000,4,1,1,'2016-05-30 00:00:00','2016-06-02 12:10:04'),(3,50.0000000000,50.0000000000,1,1,1,'2016-05-30 00:00:00','2016-06-02 12:08:51'),(4,28.5489359000,77.1856730000,3,0,1,'2016-05-30 00:00:00','2016-05-30 00:00:00'),(5,50.0000000000,50.0000000000,6,0,1,'2016-05-30 18:22:30','2016-05-30 18:22:30'),(6,28.5454901000,77.1903189000,5,0,1,'2016-05-31 11:49:48','2016-05-31 11:49:48'),(8,50.0000000000,50.0000000000,7,0,1,'2016-06-08 11:14:32','2016-06-08 11:14:32'),(9,50.0000000000,50.0000000000,9,0,1,'2016-06-08 11:14:55','2016-06-08 11:14:55');
+INSERT INTO `parking_sensors` VALUES (1,50,50,2,0,1,'2016-05-30 00:00:00','2016-05-30 12:19:04','1'),(2,60,60,4,1,1,'2016-05-30 00:00:00','2016-06-02 12:10:04','2'),(3,50,50,1,0,1,'2016-05-30 00:00:00','2016-06-09 12:11:16','3'),(4,28.5489359,77.185673,3,0,1,'2016-05-30 00:00:00','2016-05-30 00:00:00','4'),(5,50,50,6,0,1,'2016-05-30 18:22:30','2016-05-30 18:22:30','5'),(10,28.545117,77.190624,9,0,1,'2016-06-09 10:55:51','2016-06-09 10:55:51','6'),(11,28.5459826,77.1891515,7,0,1,'2016-06-09 10:59:10','2016-06-09 10:59:10','7'),(12,28.5451411,77.1906009,8,0,1,'2016-06-09 12:01:59','2016-06-09 12:01:59','76');
 /*!40000 ALTER TABLE `parking_sensors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users_info`
+--
+
+DROP TABLE IF EXISTS `users_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `last_login` datetime DEFAULT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users_info`
+--
+
+LOCK TABLES `users_info` WRITE;
+/*!40000 ALTER TABLE `users_info` DISABLE KEYS */;
+INSERT INTO `users_info` VALUES (1,'pbkdf2_sha256$30000$iJY3ocGNX52t$Wz0ZVXCm0UPa/y536yep167ljMcCmP6TSghw13AYsmA=','2016-06-10 04:29:14',1,'shubhamjindal18@gmail.com','Shubham Jindal',1,1,'2016-06-10 04:27:30','2016-06-10 04:27:30'),(2,'pbkdf2_sha256$30000$NopINkkjfAUu$iUWRvfPqspSe7sk+ctGdEnsXdNgX8pF0ntoP7NbSUQI=',NULL,0,'skjindal93.iitd@gmail.com','Shubham Jindal',1,0,'2016-06-13 11:21:46','2016-06-13 11:21:46');
+/*!40000 ALTER TABLE `users_info` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -224,4 +292,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-06-08 18:37:44
+-- Dump completed on 2016-06-13 17:07:00
