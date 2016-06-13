@@ -10,6 +10,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from django.db.models import F
 import math, subprocess, datetime
 from django.forms.models import model_to_dict
+from django.core.exceptions import ObjectDoesNotExist
 
 def distance(lat1, lon1, lat2, lon2):
 	radius = 6371 # km
@@ -88,10 +89,19 @@ class ParkCar(generics.GenericAPIView):
 class NavigateUser(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]	
 
-	def get(self):
-		print self.request.user
-		sensor = parkingHistory.objects.get(user=self.request.user).sensor
-		return sensor
+	def get(self, request, format=None):
+		sensor = parkingHistory.objects.get(user=self.request.user, parked_go__isnull=True).sensor
+		return Response(model_to_dict(sensor), status=status.HTTP_200_OK)
+
+class CheckUserParkedStatus(generics.GenericAPIView):
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get(self, request, format=None):
+		try:
+			parkingHistory.objects.get(user=self.request.user, parked_go__isnull=True)
+		except ObjectDoesNotExist:
+			return Response(False)
+		return Response(True)	
 
 class ParkingArea(generics.ListAPIView):
 	serializer_class = ParkingAreaSerializer
