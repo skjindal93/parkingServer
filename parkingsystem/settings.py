@@ -35,13 +35,13 @@ INSTALLED_APPS = (
 	'users.apps.UsersConfig',
 	'parking.apps.ParkingConfig',
 	'installation.apps.InstallationConfig',
-    'corsheaders',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+	'corsheaders',
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
 	'oauth2_provider'
 )
 
@@ -136,6 +136,7 @@ USE_TZ = True
 MEDIA_ROOT = BASE_DIR+'/media'
 MEDIA_URL = '/media/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
