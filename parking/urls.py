@@ -9,5 +9,6 @@ urlpatterns = [
 	url(r'^checkStatus/$', views.checkStatus, name='checkStatus'),
 	url(r'^deleteRaspberry/(?P<pk>[0-9]+)/$', views.RaspberryDelete.as_view(), name='raspberryDelete'),
 	url(r'^deleteSensor/(?P<pk>[0-9]+)/$', views.SensorDelete.as_view(), name='sensorDelete'),
-	url(r'^navigateUser/(?P<qr>.*)/$', views.NavigateUser.as_view(), name='navigateUser'),
+	url(r'^navigateUser/$', views.NavigateUser.as_view(), name='navigateUser'),
+	url(r'^checkUserParkedStatus/$', views.CheckUserParkedStatus.as_view(), name='checkUserParkedStatus'),
 ]
