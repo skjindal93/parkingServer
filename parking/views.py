@@ -3,7 +3,7 @@ from rest_framework import status
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse
 from .serializers import *
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -85,12 +85,13 @@ class ParkCar(generics.GenericAPIView):
 		else:
 			return Response("(You have already parked the car) or (You are scanning the wrong sensor. Someone else's car is already parked there.)", status=status.HTTP_400_BAD_REQUEST)
 
-class NavigateUser(generics.RetrieveAPIView):
-	serializer_class = SensorSerializer
-	queryset = sensors.objects.all()
+class NavigateUser(generics.GenericAPIView):
+	permission_classes = [permissions.IsAuthenticated]	
 
-	def get_object(self):
-		return sensors.objects.get(qr = self.kwargs['qr'])
+	def get(self):
+		print self.request.user
+		sensor = parkingHistory.objects.get(user=self.request.user).sensor
+		return sensor
 
 class ParkingArea(generics.ListAPIView):
 	serializer_class = ParkingAreaSerializer

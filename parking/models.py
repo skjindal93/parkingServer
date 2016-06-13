@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class raspberry(models.Model):
 	raspberry_id = models.AutoField(primary_key=True)
@@ -51,7 +52,7 @@ class areaRegionMapping(models.Model):
 		unique_together = ('region', 'area',)
 
 class parkingHistory(models.Model):
-	user = models.IntegerField(default=1)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='histories')
 	sensor = models.ForeignKey(sensors, on_delete=models.CASCADE, related_name = 'histories')
 	parked_at = models.DateTimeField(auto_now_add=True)
 	parked_go = models.DateTimeField(null=True)

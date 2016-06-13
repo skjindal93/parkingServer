@@ -11,5 +11,4 @@ urlpatterns = (
 	url(r'^installation/', include('installation.urls')),
 	url(r'^users/', include('users.urls')),
     url(r'^admin/', include(admin.site.urls)),
-	url(r'^auth/token/', users.views.TokenView.as_view(), name='TokenView'),
 )

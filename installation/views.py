@@ -75,7 +75,6 @@ class ParkingAreaRegister(generics.CreateAPIView):
 
 class ParkingAreasInRegion(generics.ListAPIView):
 	serializer_class = ParkingAreaRegionSerializer
-	permission_classes = [permissions.IsAuthenticated]
 
 	def get_queryset(self):
 		return areaRegionMapping.objects.filter(region=self.kwargs['region'])
