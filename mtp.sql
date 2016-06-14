@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.41, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.49, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: mtp
 -- ------------------------------------------------------
--- Server version	5.5.41-0ubuntu0.12.04.1
+-- Server version	5.5.49-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,7 +34,7 @@ CREATE TABLE `parking_parkinghistory` (
   KEY `parking_parkinghistory_e8701ad4` (`user_id`),
   CONSTRAINT `parking_parkinghistory_user_id_efaea99b_fk_users_info_id` FOREIGN KEY (`user_id`) REFERENCES `users_info` (`id`),
   CONSTRAINT `parking_parkingh_sensor_id_7792c063_fk_parking_sensors_sensor_id` FOREIGN KEY (`sensor_id`) REFERENCES `parking_sensors` (`sensor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +43,7 @@ CREATE TABLE `parking_parkinghistory` (
 
 LOCK TABLES `parking_parkinghistory` WRITE;
 /*!40000 ALTER TABLE `parking_parkinghistory` DISABLE KEYS */;
-INSERT INTO `parking_parkinghistory` VALUES (1,'0000-00-00 00:00:00',NULL,NULL,2,1);
+INSERT INTO `parking_parkinghistory` VALUES (2,'2016-06-14 08:55:07','2016-06-14 09:39:23',15,1,3),(8,'2016-06-14 09:26:58','2016-06-14 09:27:00',1,3,1);
 /*!40000 ALTER TABLE `parking_parkinghistory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,6 +91,7 @@ CREATE TABLE `parking_parkingareas` (
   `filled` int(11) NOT NULL,
   `latitude` double DEFAULT NULL,
   `longitude` double DEFAULT NULL,
+  `charge` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -101,7 +102,7 @@ CREATE TABLE `parking_parkingareas` (
 
 LOCK TABLES `parking_parkingareas` WRITE;
 /*!40000 ALTER TABLE `parking_parkingareas` DISABLE KEYS */;
-INSERT INTO `parking_parkingareas` VALUES (1,'Vindhyachal Hostel',0,1,1,50),(2,'Shivalik Hostel',0,0,1,50),(3,'Bla',0,0,1,25),(4,'Bla',0,0,1,25),(5,'Bla',0,0,1,25),(6,'Bla',0,0,1,25),(7,'Bla',0,0,1,25),(8,'Bla',0,0,1,25),(9,'Bla',0,0,1,25),(10,'Bharti Building',0,0,1,77.1906569),(11,'ChotuArea',0,0,1,50),(12,'Bb ki vines',0,0,1,77.19068),(13,'Babalee',0,0,28.5526311,77.194189);
+INSERT INTO `parking_parkingareas` VALUES (1,'Vindhyachal Hostel',0,2,1,50,20),(2,'Shivalik Hostel',0,0,1,50,20),(3,'Bla',0,0,1,25,20),(4,'Bla',0,0,1,25,20),(5,'Bla',0,0,1,25,20),(6,'Bla',0,0,1,25,20),(7,'Bla',0,0,1,25,20),(8,'Bla',0,0,1,25,20),(9,'Bla',0,0,1,25,20),(10,'Bharti Building',0,0,1,77.1906569,20),(11,'ChotuArea',0,0,1,50,20),(12,'Bb ki vines',0,0,1,77.19068,20),(13,'Babalee',0,0,28.5526311,77.194189,20);
 /*!40000 ALTER TABLE `parking_parkingareas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -184,7 +185,7 @@ CREATE TABLE `parking_raspberry` (
 
 LOCK TABLES `parking_raspberry` WRITE;
 /*!40000 ALTER TABLE `parking_raspberry` DISABLE KEYS */;
-INSERT INTO `parking_raspberry` VALUES (1,'','10.192.49.24'),(5,'',NULL);
+INSERT INTO `parking_raspberry` VALUES (1,'c4:e9:84:19:7a:fa','192.168.0.110'),(5,'',NULL);
 /*!40000 ALTER TABLE `parking_raspberry` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -246,7 +247,7 @@ CREATE TABLE `parking_sensors` (
 
 LOCK TABLES `parking_sensors` WRITE;
 /*!40000 ALTER TABLE `parking_sensors` DISABLE KEYS */;
-INSERT INTO `parking_sensors` VALUES (1,50,50,2,0,1,'2016-05-30 00:00:00','2016-05-30 12:19:04','1'),(2,60,60,4,1,1,'2016-05-30 00:00:00','2016-06-02 12:10:04','2'),(3,50,50,1,0,1,'2016-05-30 00:00:00','2016-06-09 12:11:16','3'),(4,28.5489359,77.185673,3,0,1,'2016-05-30 00:00:00','2016-05-30 00:00:00','4'),(5,50,50,6,0,1,'2016-05-30 18:22:30','2016-05-30 18:22:30','5'),(10,28.545117,77.190624,9,0,1,'2016-06-09 10:55:51','2016-06-09 10:55:51','6'),(11,28.5459826,77.1891515,7,0,1,'2016-06-09 10:59:10','2016-06-09 10:59:10','7'),(12,28.5451411,77.1906009,8,0,1,'2016-06-09 12:01:59','2016-06-09 12:01:59','76');
+INSERT INTO `parking_sensors` VALUES (1,50,50,2,0,1,'2016-05-30 00:00:00','2016-06-14 09:39:23','1'),(2,60,60,4,0,1,'2016-05-30 00:00:00','2016-06-02 12:10:04','2'),(3,50,50,1,0,1,'2016-05-30 00:00:00','2016-06-14 09:27:00','3'),(4,28.5489359,77.185673,3,0,1,'2016-05-30 00:00:00','2016-05-30 00:00:00','4'),(5,50,50,6,0,1,'2016-05-30 18:22:30','2016-05-30 18:22:30','5'),(10,28.545117,77.190624,9,0,1,'2016-06-09 10:55:51','2016-06-09 10:55:51','6'),(11,28.5459826,77.1891515,7,0,1,'2016-06-09 10:59:10','2016-06-09 10:59:10','7'),(12,28.5451411,77.1906009,8,0,1,'2016-06-09 12:01:59','2016-06-09 12:01:59','76');
 /*!40000 ALTER TABLE `parking_sensors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -268,9 +269,10 @@ CREATE TABLE `users_info` (
   `is_staff` tinyint(1) NOT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
+  `wallet` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -279,7 +281,7 @@ CREATE TABLE `users_info` (
 
 LOCK TABLES `users_info` WRITE;
 /*!40000 ALTER TABLE `users_info` DISABLE KEYS */;
-INSERT INTO `users_info` VALUES (1,'pbkdf2_sha256$30000$iJY3ocGNX52t$Wz0ZVXCm0UPa/y536yep167ljMcCmP6TSghw13AYsmA=','2016-06-10 04:29:14',1,'shubhamjindal18@gmail.com','Shubham Jindal',1,1,'2016-06-10 04:27:30','2016-06-10 04:27:30'),(2,'pbkdf2_sha256$30000$NopINkkjfAUu$iUWRvfPqspSe7sk+ctGdEnsXdNgX8pF0ntoP7NbSUQI=',NULL,0,'skjindal93.iitd@gmail.com','Shubham Jindal',1,0,'2016-06-13 11:21:46','2016-06-13 11:21:46');
+INSERT INTO `users_info` VALUES (1,'pbkdf2_sha256$24000$PzgCRFiabfXv$2bQvU30rnb1mRxQacK7zFPfJWohPWI7h1JYAzGx5uhI=','2016-06-13 12:55:41',1,'shubhamjindal18@gmail.com','Shubham Jindal',1,1,'2016-06-10 04:27:30','2016-06-14 09:27:00',999),(2,'pbkdf2_sha256$30000$NopINkkjfAUu$iUWRvfPqspSe7sk+ctGdEnsXdNgX8pF0ntoP7NbSUQI=',NULL,0,'skjindal93.iitd@gmail.com','Shubham Jindal',1,0,'2016-06-13 11:21:46','2016-06-13 11:21:46',1000),(3,'pbkdf2_sha256$24000$8XMb7hJg6NMm$ydogSG1dJjVV2qci8A3Sq8YGVnsUgZzCRnEaByP+1WQ=',NULL,0,'foo@example.com','Mayank',1,0,'2016-06-13 12:44:10','2016-06-14 09:39:23',985);
 /*!40000 ALTER TABLE `users_info` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -292,4 +294,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-06-13 17:07:00
+-- Dump completed on 2016-06-14 17:52:04

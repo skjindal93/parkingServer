@@ -32,6 +32,7 @@ class parkingAreas(models.Model):
 	longitude = models.FloatField(null=False)
 	capacity = models.IntegerField(null=False, default=0)
 	filled = models.IntegerField(null=False, default=0)
+	charge = models.IntegerField(default=20)
 
 class parkingRaspberryMapping(models.Model):
 	area = models.ForeignKey(parkingAreas, on_delete=models.CASCADE, related_name = 'area_mappings')

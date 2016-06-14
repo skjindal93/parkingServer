@@ -11,6 +11,7 @@ from django.db.models import F
 import math, subprocess, datetime
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import get_user_model
 
 def distance(lat1, lon1, lat2, lon2):
 	radius = 6371 # km
@@ -24,30 +25,40 @@ def distance(lat1, lon1, lat2, lon2):
 
 	return d
 
-def orderedParkingArea(request):
-	latitude = request.GET.get('latitude')	
-	longitude = request.GET.get('longitude')
-	latitude = float(latitude)
-	longitude = float(longitude)
-	parking_areas = parkingAreas.objects.all()
-	parking_areas_list = []
-	for area in parking_areas:
-		parking_areas_list.append(model_to_dict(area))
-	print parking_areas_list
+class UpdatePiIP(generics.GenericAPIView):
 	
-	for area in parking_areas_list:
-		area_latitude  = float(area['latitude'])
-		area_longitude = float(area['longitude'])
-		area['distance'] = distance(latitude, longitude, area_latitude, area_longitude)
+	def put(self, request, format=None):
+		mac = request.data['mac']
+		ip = request.data['ip']
+		id = int(request.data['id'])
+		raspberry.objects.filter(raspberry_id=id).update(mac=mac, ip=ip)
+		return Response("Updated!", status=status.HTTP_200_OK)
+
+class OrderedParkingArea(generics.GenericAPIView):
+	permission_classes = [permissions.IsAuthenticated]
 	
-	ordered = sorted(parking_areas_list, key=lambda k: k['distance'])
-	print ordered
-	return JsonResponse({"areas": ordered})
+	def get(self, request, format=None):
+		latitude = request.GET.get('latitude')	
+		longitude = request.GET.get('longitude')
+		latitude = float(latitude)
+		longitude = float(longitude)
+		parking_areas = parkingAreas.objects.all()
+		parking_areas_list = []
+		for area in parking_areas:
+			parking_areas_list.append(model_to_dict(area))
+		
+		for area in parking_areas_list:
+			area_latitude  = float(area['latitude'])
+			area_longitude = float(area['longitude'])
+			area['distance'] = distance(latitude, longitude, area_latitude, area_longitude)
+		
+		ordered = sorted(parking_areas_list, key=lambda k: k['distance'])
+		return Response({"areas": ordered}, status=status.HTTP_200_OK)
 		
 class ParkCarFromSensor(generics.UpdateAPIView):
 	serializer_class = ParkCarFromSensorSerializer
-	queryset = sensors.objects.all()
-	
+	queryset = sensors.objects.all()	
+
 	def get_object(self):
 		return sensors.objects.get(pi = self.kwargs['pi'], pi_port = self.kwargs['pi_port'])
 
@@ -55,7 +66,9 @@ class ParkCarFromSensor(generics.UpdateAPIView):
 		sensor = self.get_object()
 		pi = sensor.pi
 		previous_occupied = sensor.occupied
-		parking_area = parkingRaspberryMapping.objects.get(pi=pi).area.id
+		parking_area_obj = parkingRaspberryMapping.objects.get(pi=pi).area
+		parking_area = parking_area_obj.id
+		parking_charge = parking_area_obj.charge
 		occupied = self.request.data['occupied']
 		occupied = bool(int(occupied))
 		print previous_occupied, occupied
@@ -67,13 +80,21 @@ class ParkCarFromSensor(generics.UpdateAPIView):
 		serializer.save()
 
 		if previous_occupied == 1 and occupied == 0:
-			now = datetime.datetime.now()
-			parkingHistory.objects.filter(sensor=sensor,parked_go__isnull=True).update(parked_go=now)
+			now = datetime.datetime.now().replace(tzinfo=None)
+			parked_at = parkingHistory.objects.get(sensor=sensor, parked_go__isnull=True).parked_at.replace(tzinfo=None)
+			parked_time = now - parked_at
+			print parked_at, now
+			amount = math.ceil(parking_charge*(parked_time.seconds/float(3600)))
+			user = parkingHistory.objects.get(sensor=sensor, parked_go__isnull=True).user
+			user.wallet = user.wallet - amount
+			user.save()			
+			parkingHistory.objects.filter(sensor=sensor, parked_go__isnull=True).update(parked_go=now, amount = amount)
 
 class ParkCar(generics.GenericAPIView):
-		
+	permission_classes = [permissions.IsAuthenticated]
+
 	def post(self, request, format=None):
-		user = int(request.data['user'])
+		user = self.request.user
 		sensor_qr = request.data['qr']
 		sensor = sensors.objects.get(qr=sensor_qr)
 		occupied = sensor.occupied
@@ -102,6 +123,13 @@ class CheckUserParkedStatus(generics.GenericAPIView):
 		except ObjectDoesNotExist:
 			return Response(False)
 		return Response(True)	
+
+class CurrentBalance(generics.GenericAPIView):
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get(self, request, format=None):
+		wallet = self.request.user.wallet
+		return Response({"wallet": wallet}, status = status.HTTP_200_OK)
 
 class ParkingArea(generics.ListAPIView):
 	serializer_class = ParkingAreaSerializer

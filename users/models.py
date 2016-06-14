@@ -31,7 +31,7 @@ class Info(AbstractBaseUser, PermissionsMixin):
 	is_staff = models.BooleanField(default=False)
 	created = models.DateTimeField('created', auto_now_add=True)
 	updated = models.DateTimeField('updated', auto_now=True)
-
+	wallet = models.IntegerField(default=1000)
 	objects = UserManager()
 
 	USERNAME_FIELD = 'email'
