@@ -25,15 +25,7 @@ def distance(lat1, lon1, lat2, lon2):
 
 	return d
 
-class UpdatePiIP(generics.GenericAPIView):
-	
-	def put(self, request, format=None):
-		mac = request.data['mac']
-		ip = request.data['ip']
-		id = int(request.data['id'])
-		raspberry.objects.filter(raspberry_id=id).update(mac=mac, ip=ip)
-		return Response("Updated!", status=status.HTTP_200_OK)
-
+#Get ordered parking areas based on current latitude and longitude
 class OrderedParkingArea(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]
 	
@@ -54,7 +46,12 @@ class OrderedParkingArea(generics.GenericAPIView):
 		
 		ordered = sorted(parking_areas_list, key=lambda k: k['distance'])
 		return Response({"areas": ordered}, status=status.HTTP_200_OK)
-		
+	
+########################################
+################User####################
+########################################
+
+#Park and Unpark car from sensor
 class ParkCarFromSensor(generics.UpdateAPIView):
 	serializer_class = ParkCarFromSensorSerializer
 	queryset = sensors.objects.all()	
@@ -90,6 +87,20 @@ class ParkCarFromSensor(generics.UpdateAPIView):
 			user.save()			
 			parkingHistory.objects.filter(sensor=sensor, parked_go__isnull=True).update(parked_go=now, amount = amount)
 
+#Check if user scanned the QR after parking the car
+class CheckQRIfScanned(generics.GenericAPIView):
+	def get(self, request, *args, **kwargs):
+		pi = int(kwargs['pi'])
+		pi_port = int(kwargs['pi_port'])
+		sensor = sensors.objects.get(pi=pi, pi_port=pi_port)
+		if sensor.occupied == True:
+			try:
+				parkingHistory.objects.get(sensor=sensor, parked_go__isnull=True)
+			except ObjectDoesNotExist:
+				return Response(False)
+			return Response(True)
+
+#Park Car after user scans QR
 class ParkCar(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -107,6 +118,7 @@ class ParkCar(generics.GenericAPIView):
 		else:
 			return Response("(You have already parked the car) or (You are scanning the wrong sensor. Someone else's car is already parked there.)", status=status.HTTP_400_BAD_REQUEST)
 
+#Navigate a user back to parked location
 class NavigateUser(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]	
 
@@ -114,6 +126,7 @@ class NavigateUser(generics.GenericAPIView):
 		sensor = parkingHistory.objects.get(user=self.request.user, parked_go__isnull=True).sensor
 		return Response(model_to_dict(sensor), status=status.HTTP_200_OK)
 
+#Check whether a particular has parked his/her car
 class CheckUserParkedStatus(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -124,6 +137,7 @@ class CheckUserParkedStatus(generics.GenericAPIView):
 			return Response(False)
 		return Response(True)	
 
+#Get current balance of user
 class CurrentBalance(generics.GenericAPIView):
 	permission_classes = [permissions.IsAuthenticated]
 
@@ -131,6 +145,20 @@ class CurrentBalance(generics.GenericAPIView):
 		wallet = self.request.user.wallet
 		return Response({"wallet": wallet}, status = status.HTTP_200_OK)
 
+#Get Parking History of user
+class GetParkingHistory(generics.ListAPIView):
+	serializer_class= ParkingHistorySerializer
+	queryset = parkingHistory.objects.all()
+	permission_classes = [permissions.IsAuthenticated]
+
+	def get_object(self):
+		return parkingHistory.objects.get(user=self.request.user)
+
+########################################
+##################Pi####################
+########################################
+
+#Get all Pis within an area
 class ParkingArea(generics.ListAPIView):
 	serializer_class = ParkingAreaSerializer
 	
@@ -138,6 +166,7 @@ class ParkingArea(generics.ListAPIView):
 		area = self.request.GET.get('area')
 		return parkingRaspberryMapping.objects.filter(area = area)
 
+#Check whether a pi is online or not
 def checkStatus(request):
 	import pingparser
 	pi = request.GET.get('pi')
@@ -150,10 +179,26 @@ def checkStatus(request):
 	status = pingparser.parse(out)['received']
 	return HttpResponse(status)
 
+#Update IP and MAC of Pi table from Pi
+class UpdatePiIP(generics.GenericAPIView):
+	
+	def put(self, request, format=None):
+		mac = request.data['mac']
+		ip = request.data['ip']
+		id = int(request.data['id'])
+		raspberry.objects.filter(raspberry_id=id).update(mac=mac, ip=ip)
+		return Response("Updated!", status=status.HTTP_200_OK)
+
+#Delete a Pi
 class RaspberryDelete(generics.DestroyAPIView):
 	serializer_class = RaspberryDeleteSerializer
 	queryset = raspberry.objects.all()
 
+########################################
+###############Sensor###################
+########################################
+
+#Delete a Sensor
 class SensorDelete(generics.DestroyAPIView):
 	serializer_class = SensorDeleteSerializer
 	queryset = sensors.objects.all()

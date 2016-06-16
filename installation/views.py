@@ -6,11 +6,16 @@ import pyqrcode, os, math
 from django.conf import settings
 from rest_framework import generics, permissions
 from .serializers import *
+from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
+from django.core.exceptions import SuspiciousOperation
 
 ########################################
 #################Fxns###################
 ########################################
+class IsAdmin(permissions.BasePermission):
+	def has_permission(self, request, view):
+		return request.user.admin
 
 def distance(lat1, lon1, lat2, lon2):
 	radius = 6371 # km
@@ -24,7 +29,7 @@ def distance(lat1, lon1, lat2, lon2):
 
 	return d
 
-pi_ports = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+pi_ports = [2, 3, 4, 9, 10, 11, 17, 22]
 
 ########################################
 ################Region##################
@@ -111,7 +116,7 @@ class RaspberryPhoneMap(generics.CreateAPIView):
 			parkingRaspberryMapping.objects.create(area=area, pi=pi)
 			serializer.save()
 		else:
-			actual_area	= parkingRaspberryMapping.objects.get(pi=pi).area
+			actual_area = parkingRaspberryMapping.objects.get(pi=pi).area
 			if (actual_area != area):
 				raise Http404
 			
@@ -143,11 +148,12 @@ def sensorPortList(request):
 
 	ports = []
 	for id in pi_ports:
+		echo = sensorPortGPIOMappings.objects.get(trig=id).echo
 		if id in used:
-			j = {'pi_port': id, 'used': True}
+			j = {'pi_port': id, 'echo': echo ,'used': True}
 			ports.append(j)
 		else:
-			j = {'pi_port': id, 'used': False}
+			j = {'pi_port': id, 'echo': echo, 'used': False}
 			ports.append(j)
 	return JsonResponse({"ports":ports})
 

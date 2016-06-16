@@ -43,3 +43,16 @@ class ParkingAreaSerializer(serializers.ModelSerializer):
 		model = parkingRaspberryMapping
 		fields = ('area','pi',)
 
+class ParkingHistorySerializer(serializers.ModelSerializer):
+	def area_name(self, obj):
+		object = obj.sensor.pi.pi_mappings.all()[0]
+		return object.area.name
+	def region_name(self, obj):
+		queryset = obj.sensor.pi.pi_mappings.all()[0]
+		object = queryset.area.region_mappings.all()[0]
+		return object.region.name
+	area = serializers.SerializerMethodField('area_name')
+	region = serializers.SerializerMethodField('region_name')
+	class Meta:
+		model = parkingHistory
+		fields = ('parked_at', 'parked_go', 'amount', 'area', 'region')

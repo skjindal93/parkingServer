@@ -24,6 +24,11 @@ class sensors(models.Model):
 	class Meta:
 		unique_together = ('pi', 'pi_port',)
 
+class sensorPortGPIOMappings(models.Model):
+	trig = models.IntegerField(null=False)
+	echo = models.IntegerField(null=False)
+	class Meta:
+		unique_together = ('trig', 'echo')
 
 class parkingAreas(models.Model):
 	id = models.AutoField(primary_key=True)

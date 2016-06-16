@@ -33,6 +33,7 @@ class Info(AbstractBaseUser, PermissionsMixin):
 	updated = models.DateTimeField('updated', auto_now=True)
 	wallet = models.IntegerField(default=1000)
 	objects = UserManager()
+	admin = models.BooleanField(default=False)
 
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = ['name']

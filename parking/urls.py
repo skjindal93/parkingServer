@@ -12,5 +12,7 @@ urlpatterns = [
 	url(r'^navigateUser/$', views.NavigateUser.as_view(), name='navigateUser'),
 	url(r'^checkUserParkedStatus/$', views.CheckUserParkedStatus.as_view(), name='checkUserParkedStatus'),
 	url(r'^currentBalance/$', views.CurrentBalance.as_view(), name='currentBalance'),
-	url(r'^updatePiIP/$', views.UpdatePiIP.as_view(), name='updatePiIP'),
+	url(r'^updatePiIP/$', views.UpdatePiIP.as_view(), name='updatePiIP'),	
+	url(r'^checkQRIfScanned/(?P<pi>[0-9]+)/(?P<pi_port>[0-9]+)/$', views.CheckQRIfScanned.as_view(), name='checkQRIfScanned'),
+	url(r'^parkingHistory/$', views.GetParkingHistory.as_view(), name='parkingHistory'),
 ]
