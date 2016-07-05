@@ -35,7 +35,7 @@ class parkingAreas(models.Model):
 	name = models.TextField(blank=False)
 	latitude = models.FloatField(null=False)
 	longitude = models.FloatField(null=False)
-	capacity = models.IntegerField(null=False, default=0)
+	capacity = models.IntegerField(null=False, default=20)
 	filled = models.IntegerField(null=False, default=0)
 	charge = models.IntegerField(default=20)
 

@@ -46,7 +46,18 @@ class OrderedParkingArea(generics.GenericAPIView):
 		
 		ordered = sorted(parking_areas_list, key=lambda k: k['distance'])
 		return Response({"areas": ordered}, status=status.HTTP_200_OK)
+
+class ParkingRegionList(generics.ListAPIView):		
+ 	serializer_class = ParkingRegionSerializer		
+ 	queryset = parkingRegions.objects.all()
+
+
+class ParkingAreasInRegion(generics.ListAPIView):
+	serializer_class = ParkingAreasSerializer
 	
+	def get_queryset(self):
+		region = self.request.GET.get('region')
+		return areaRegionMapping.objects.filter(region = region)
 ########################################
 ################User####################
 ########################################

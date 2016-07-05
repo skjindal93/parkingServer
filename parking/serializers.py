@@ -37,11 +37,27 @@ class RaspberrySensorsSerializer(serializers.ModelSerializer):
 		model = raspberry
 		fields = ('raspberry_id', 'sensors',)
 
+class ParkingRegionSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = parkingRegions
+		fields = ('id', 'name', 'latitude', 'longitude',)
+
 class ParkingAreaSerializer(serializers.ModelSerializer):
 	pi = RaspberrySensorsSerializer(read_only=True)
 	class Meta:
 		model = parkingRaspberryMapping
 		fields = ('area','pi',)
+
+class ParkingAreaDetailSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = parkingAreas
+		fields = ('id', 'name','latitude','longitude','capacity','filled',)
+
+class ParkingAreasSerializer(serializers.ModelSerializer):
+	area = ParkingAreaDetailSerializer(read_only=True)
+	class Meta:
+		model = areaRegionMapping
+		fields = ('region','area')
 
 class ParkingHistorySerializer(serializers.ModelSerializer):
 	def area_name(self, obj):

@@ -94,12 +94,13 @@ def registerPi(request):
 	id = obj.raspberry_id
 	QR(id)
 	img_name = str(id)+'-qr.svg'
-	return JsonResponse({'svg':img_name})
+	return JsonResponse({'svg':img_name,'id':id})
 
 #Generate QR with given id
 def QR(id):
+	from django.conf import settings
 	data = pyqrcode.create(id)
-	data.svg('media/'+str(id)+'-qr.svg', scale=8)
+	data.svg(os.path.join(settings.MEDIA_ROOT, str(id)+'-qr.svg'), scale=8)
 
 #Map a phone with a given raspberry
 class RaspberryPhoneMap(generics.CreateAPIView):

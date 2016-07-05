@@ -42,7 +42,8 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	'oauth2_provider'
+	'oauth2_provider',
+	'django_extensions'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -68,6 +69,11 @@ ROOT_URLCONF = 'parkingsystem.urls'
 
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
 # print TEMPLATE_PATH
+
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
+}
 
 TEMPLATES = [
     {
